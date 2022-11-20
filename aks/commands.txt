@@ -1,0 +1,64 @@
+create resource group
+az group create --name myResourceGroup --location westeurope
+
+create ACR
+az acr create --resource-group myResourceGroup --name philipshoppingacr --sku Basic
+
+give admin status to ACR
+az acr update -n philipshoppingacr --admin-enabled true
+
+Login to ACR
+az acr login --name philipshoppingacr
+
+Tag docker images
+docker tag shoppingclient:latest philipshoppingacr.azurecr.io/shoppingclient:v2
+
+list images in ACR
+az acr repository list --name philipshoppingacr --output table
+
+list tags of images in ACR
+az acr repository show-tags --name philipshoppingacr --repository shoppingapi --output table
+
+get the login server address
+az acr list --resource-group myResourceGroup --query "[].{acrLoginServer:loginServer}" --output table
+
+Create AKS cluster with attaching ACR
+az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 1 --generate-ssh-keys --attach-acr shoppingacr
+
+--
+Install the Kubernetes CLI
+az aks install-cli
+--
+Connect to cluster using kubectl
+az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+
+To verify;
+kubectl get nodes
+kubectl get all
+--
+Check Kube Config
+
+kubectl config get-contexts
+kubectl config current-context
+kubectl config use-context gcpcluster-k8s-1
+	Switched to context "gcpcluster-k8s-1"
+--
+
+create ACR secret
+kubectl create secret docker-registry acr-secret --docker-server=philipshoppingacr.azurecr.io --docker-username=philipshoppingacr --docker-password=JNMHF7jbyJ/DdNwl7diOSws9Yx5xHNIO --docker-email=philipomoigui@outlook.com
+secret/acr-secret created
+
+Deploy microservices to AKS
+
+kubectl apply -f .\aks\
+--
+Clean All AKS and Azure Resources
+
+az group delete --name myResourceGroup --yes --no-wait
+
+
+Show AKS version
+az aks show --resource-group myResourceGroup --name myAKSCluster --query kubernetesVersion --output table
+
+Build Docker-compose
+docker-compose -f docker-compose.yml -f docker-compose.override up
