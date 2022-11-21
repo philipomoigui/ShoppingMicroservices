@@ -84,7 +84,8 @@ stages:
             inputs:
               action: deploy
               manifests: |
-                $(Pipeline.Workspace)/aks/*
+                $(System.ArtifactsDirectory)/aks/mongo-configmap.yaml
+                $(Pipeline.Workspace)/aks/shoppingapi.yaml
               imagePullSecrets: |
                 $(imagePullSecret)
               useConfigMapFile: true
