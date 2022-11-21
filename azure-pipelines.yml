@@ -72,6 +72,8 @@ stages:
               action: deploy
               manifests: |
                 $(Pipeline.Workspace)/manifests/shoppingapi.yml
+                $(Pipeline.Workspace)/manifests/mongo-configmap.yml
+                $(Pipeline.Workspace)/manifests/shoppingapi-configmap.yml
               imagePullSecrets: |
                 $(imagePullSecret)
               containers: |
