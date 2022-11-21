@@ -80,6 +80,8 @@ stages:
                 $(Pipeline.Workspace)/aks/shoppingapi.yaml
               imagePullSecrets: |
                 $(imagePullSecret)
+              useConfigMapFile: true
+              configMapFile: $(Build.SourcesDirectory)/aks/mongo-configmap.yaml
               containers: |
                 $(containerRegistry)/$(imageRepository):$(tag)
 
