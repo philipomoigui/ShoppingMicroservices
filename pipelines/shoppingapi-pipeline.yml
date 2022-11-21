@@ -5,7 +5,7 @@
 trigger:
     branches:
       include:
-      - master
+      - main
     paths:
       include:
       - Shopping/Shopping.API/*
@@ -17,7 +17,7 @@ resources:
 variables:
 
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'e2bd5050-0b04-449c-8cd9-9367bbf7b47e'
+  dockerRegistryServiceConnection: '4d50ba3d-9dee-426d-9f00-a8e41fe931b3'
   imageRepository: 'shoppingapi'
   containerRegistry: 'philipshoppingacr.azurecr.io'
   dockerfilePath: 'Shopping/Shopping.API/Dockerfile'
@@ -82,3 +82,99 @@ stages:
                 $(imagePullSecret)
               containers: |
                 $(containerRegistry)/$(imageRepository):$(tag)
+
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+    - Shopping/Shopping.API/*
+    - aks/shoppingapi.yaml
+
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '4d50ba3d-9dee-426d-9f00-a8e41fe931b3'
+  imageRepository: 'shoppingapi'
+  containerRegistry: 'philipshoppingacr.azurecr.io'
+  dockerfilePath: 'Shopping/Shopping.API/Dockerfile'
+  tag: '$(Build.BuildId)'
+  imagePullSecret: 'philipshoppingacr160007e9-auth'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        buildContext: $(Build.SourcesDirectory)/Shopping
+        tags: |
+          $(tag)
+
+    - upload: aks
+      artifact: aks
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'philipomoiguiShoppingMicroservices-1276.default'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+          
+          - task: Kubernetes@1
+            displayName: kubectl apply
+            inputs:
+              configMapName: mongo-configmap
+              useConfigMapFile: true
+              configMapFile: $(Build.SourcesDirectory)/aks/config-map/mongo-configmap.yaml
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: deploy
+              manifests: |
+                $(System.ArtifactsDirectory)/aks/mongo-configmap.yaml
+                $(Pipeline.Workspace)/aks/shoppingapi.yaml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              useConfigMapFile: true
+              configMapFile: $(Build.SourcesDirectory)/aks/mongo-configmap.yaml
+              containers: |
+                $(containerRegistry)/$(imageRepository):$(tag)
+
