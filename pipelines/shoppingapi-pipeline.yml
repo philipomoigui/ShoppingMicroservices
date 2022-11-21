@@ -6,7 +6,7 @@ trigger:
   branches:
     include:
       - master
-  path:
+  paths:
     include:
     - Shopping/Shopping.API/*
     - aks/shoppingapi.yaml
