@@ -7,6 +7,11 @@ Deploying .Net Microservices into Kubernetes, and moving deployments to the clou
 | Shopping API | [![Build Status](https://dev.azure.com/ezozkme/shopping/_apis/build/status/shoppingapi-pipeline?branchName=main)](https://dev.azure.com/ezozkme/shopping/_build/latest?definitionId=13&branchName=main) | | | -->
 
 
+[![Build Status](https://dev.azure.com/philipomoigui0291/ShoppingProject/_apis/build/status/Shoppingclient-Pipeline?branchName=master)](https://dev.azure.com/philipomoigui0291/ShoppingProject/_build/latest?definitionId=12&branchName=master)
+
+[![Build Status](https://dev.azure.com/philipomoigui0291/ShoppingProject/_apis/build/status/Shoppingapi-Pipeline?branchName=master)](https://dev.azure.com/philipomoigui0291/ShoppingProject/_build/latest?definitionId=11&branchName=master)
+
+
 ### Shopping MVC Client Application
 ### Shopping API Application
 ### Mongo Db
