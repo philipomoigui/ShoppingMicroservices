@@ -16,12 +16,12 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '4d50ba3d-9dee-426d-9f00-a8e41fe931b3'
+  dockerRegistryServiceConnection: '082f5651-8a7c-45ce-9eb8-86f0a766b0e5'
   imageRepository: 'shoppingapi'
-  containerRegistry: 'philipshoppingacr.azurecr.io'
+  containerRegistry: 'philipacr.azurecr.io'
   dockerfilePath: 'Shopping/Shopping.API/Dockerfile'
   tag: '$(Build.BuildId)'
-  imagePullSecret: 'philipshoppingacr160007e9-auth'
+  imagePullSecret: 'philipacra603-auth'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -59,7 +59,7 @@ stages:
     displayName: Deploy
     pool:
       vmImage: $(vmImageName)
-    environment: 'philipomoiguiShoppingMicroservices-1276.default'
+    environment: 'philipomoiguiShoppingMicroservices-6602.default'
     strategy:
       runOnce:
         deploy:

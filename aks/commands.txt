@@ -1,3 +1,6 @@
+Login to Azure CLI
+az login
+
 create resource group
 az group create --name myResourceGroup --location westeurope
 
@@ -24,6 +27,10 @@ az acr list --resource-group myResourceGroup --query "[].{acrLoginServer:loginSe
 
 Create AKS cluster with attaching ACR
 az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 1 --generate-ssh-keys --attach-acr shoppingacr
+
+Create AKS cluster with attaching ACR and Setting Kubernetes version
+az aks create --resource-group myResourceGroup --name myNewManagedCluster --node-count 1 --generate-ssh-keys --attach-acr shoppingacr --kubernetes-version 1.23
+ az aks create -g MyResourceGroup -n MyManagedCluster --kubernetes-version 1.16.9
 
 --
 Install the Kubernetes CLI
@@ -53,7 +60,6 @@ Deploy microservices to AKS
 kubectl apply -f .\aks\
 --
 Clean All AKS and Azure Resources
-
 az group delete --name myResourceGroup --yes --no-wait
 
 
@@ -62,3 +68,6 @@ az aks show --resource-group myResourceGroup --name myAKSCluster --query kuberne
 
 Build Docker-compose
 docker-compose -f docker-compose.yml -f docker-compose.override up
+
+Clean up Resources
+az group delete --name myResourceGroup --yes --no-wait 
